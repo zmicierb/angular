@@ -1,0 +1,72 @@
+<html>
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.js"></script>
+    <script>
+        var HelloCtrl = function ($scope) {
+            $scope.name = "World";
+            $scope.getName = function () {
+                return $scope.name;
+            }
+        };
+        var WorldCtrl = function ($scope) {
+            $scope.population = 7000;
+            $scope.countries = [
+                {name: "France", population: 63.1},
+                {name: "United Kingdom", population: 61.8},
+            ];
+            $scope.worldsPercentage = function (countryPopulation) {
+                return (countryPopulation / $scope.population) * 100;
+            }
+        };
+        var TextAreaWithLimitCtrl = function ($scope) {
+
+            var MAX_LEN = 20;
+            var WARN_THRESHOLD = 5;
+
+            $scope.message = "";
+
+            $scope.remaining = function () {
+                return MAX_LEN - $scope.message.length;
+            };
+
+            $scope.hasValidLength = function () {
+                return MAX_LEN > $scope.message.length;
+            };
+
+            $scope.shouldWarn = function () {
+                return $scope.remaining() < WARN_THRESHOLD;
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/main.css" type="text/css">
+</head>
+<body ng-app ng-init="thing = {name:'World'}">
+<div ng-controller="HelloCtrl">
+    Say hello to: <input type="text" ng-model="thing.name">
+    <h1>Hello, {{thing.name}}!</h1>
+    <ul ng-controller="WorldCtrl">
+        <li ng-repeat="country in countries">
+            {{country.name}} has population of {{country.population}},
+            {{worldsPercentage(country.population)}} % of the World's
+            population.
+        </li>
+        <hr>
+        World's population: {{population}} millions
+    </ul>
+</div>
+
+<div class="container" ng-controller="TextAreaWithLimitCtrl">
+    <span ng-class="{'text-warning': shouldWarn()}">Reamaining: {{remaining()}}</span>
+    <div class="row">
+        <textarea ng-model="message">{{message}}</textarea>
+    </div>
+    <div class="row">
+        <button ng-disabled="!hasValidLength()" ng-click="send()">Send</button>
+        <button ng-click="clear()">Clear</button>
+    </div>
+</div>
+</body>
+</html>
