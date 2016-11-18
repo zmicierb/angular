@@ -14,7 +14,7 @@
                         templateUrl: 'country-list.html',
                         controller: 'CountryListCtrl'
                     })
-                    .when('/:countryName', {
+                    .when('/:countryId', {
                         templateUrl: 'country-detail.html',
                         controller: 'CountryDetailCtrl'
                     })
@@ -25,28 +25,20 @@
 
         countryApp.factory('countries', function ($http) {
 
-            var cachedData;
-
-            function getData(callback) {
-                if (cachedData) {
-                    callback(cachedData);
-                } else {
-                    $http.get('countries.json').success(function (data) {
-                        cachedData = data;
-                        callback(data);
-                    });
-                }
-            }
-
             return {
-                list: getData,
-                find: function (name, callback) {
-                    getData(function (data) {
-                        var country = data.filter(function (entry) {
-                            return entry.name === name;
-                        })[0];
-                        callback(country);
-                    });
+                list: function (callback) {
+                    $http({
+                        method: 'GET',
+                        url: 'countries.json',
+                        cache: true
+                    }).success(callback);
+                },
+                find: function (id, callback) {
+                    $http({
+                        method: 'GET',
+                        url: 'country_' + id + '.json',
+                        cache: true
+                    }).success(callback);
                 }
             };
         });
@@ -58,11 +50,31 @@
         }]);
 
         countryApp.controller('CountryDetailCtrl', function ($scope, $routeParams, countries) {
-            countries.find($routeParams.countryName, function (country) {
+            countries.find($routeParams.countryId, function (country) {
                 $scope.country = country;
             });
 
         });
+
+        countryApp.filter('encodeURI', function () {
+            return window.encodeURI;
+        });
+
+        countryApp.directive('country', function () {
+            return {
+                scope: {
+                    country: '='
+                },
+                restrict: 'A',
+                templateUrl: 'country.html',
+                controller: function ($scope, countries) {
+                    countries.find($scope.country.id, function (country) {
+                        $scope.flagURL = country.flagURL;
+                    })
+                }
+            };
+        });
+
     </script>
     <!--<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>-->
     <!--<script src="http://jashkenas.github.io/underscore/underscore-min.js"></script>-->
